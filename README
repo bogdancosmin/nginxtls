@@ -1,0 +1,5 @@
+Example of certificates being used in a TLS handshake
+
+1. Command to use for handshake: curl -v --resolve www.simple.org:30548:127.0.0.1 https://www.simple.org:30548 --key fred.key --cert fred.crt --cacert chain.pem
+(Use it in the client directory) 
+2. Password for certificates: andreea
