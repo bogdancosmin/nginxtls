@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  docker:
+    image: nginxtls:1
+    build: ./docker
+    ports:
+      - "9080:80"
+      - "9043:443"
