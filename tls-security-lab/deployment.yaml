@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginxtls
+  labels:
+    app: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 80
+            protocol: TCP
+          - containerPort: 443
+            protocol: TCP
+        securityContext:
+          privileged: true
+          capabilities:
+            add: ["SYS_ADMIN"]
+          allowPrivilegeEscalation: true
+        volumeMounts:
+          - name: nginx-volume
+            mountPropagation: "Bidirectional"
+            mountPath: "/etc/nginx"
+          - name: html-volume
+            mountPropagation: "Bidirectional"
+            mountPath: "/usr/share/nginx/html"
+          - name: certs-volume
+            mountPath: "/etc/nginx/certs"
+            readOnly: true
+      volumes:
+        - name: nginx-volume
+          hostPath:
+            path: /Users/cosmin/Project/tls-security-lab/nginx
+            type: DirectoryOrCreate
+        - name: html-volume
+          hostPath:
+            path: /Users/cosmin/Project/tls-security-lab/html
+            type: DirectoryOrCreate
+        - name: certs-volume
+          secret:
+              secretName: certificates
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+  name: nginxtls
+  namespace: tlslab
+spec:
+  ports:
+  - name: port-1
+    nodePort: 32035
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  - name: port-2
+    nodePort: 30548
+    port: 443
+    protocol: TCP
+    targetPort: 443
+  selector:
+    app: nginx
+  sessionAffinity: None
+  type: NodePort
+
+
+---
