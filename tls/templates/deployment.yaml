@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginxtls
+  labels:
+    app: nginx
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+              protocol: TCP
+            - containerPort: 443
+              protocol: TCP
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["SYS_ADMIN"]
+            allowPrivilegeEscalation: true
+          volumeMounts:
+            - name: nginx-volume
+              mountPropagation: "Bidirectional"
+              mountPath: "/etc/nginx"
+            - name: html-volume
+              mountPropagation: "Bidirectional"
+              mountPath: "/usr/share/nginx/html"
+            - name: certs-volume
+              mountPath: "/etc/nginx/certs"
+              readOnly: true
+      volumes:
+        - name: nginx-volume
+          hostPath:
+            path: {{ .Values.volumes.nginx.hostPath }}
+            type: DirectoryOrCreate
+        - name: html-volume
+          hostPath:
+            path: {{ .Values.volumes.html.hostPath }}
+            type: DirectoryOrCreate
+        - name: certs-volume
+          secret:
+            secretName: {{ .Values.secrets.certificates }}

@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nginx
+  name: nginxtls
+  namespace: tlslab
+spec:
+  ports:
+    - name: port-1
+      nodePort: {{ .Values.ports.httpNodePort }}
+      port: 80
+      protocol: TCP
+      targetPort: 80
+    - name: port-2
+      nodePort: {{ .Values.ports.httpsNodePort }}
+      port: 443
+      protocol: TCP
+      targetPort: 443
+  selector:
+    app: nginx
+  sessionAffinity: None
+  type: NodePort

@@ -1,0 +1,25 @@
+#Deployment
+replicaCount: 2
+
+image:
+  repository: nginx
+  tag: 1.7.9
+  pullPolicy: IfNotPresent
+
+volumes:
+  nginx:
+    hostPath: /Users/cosmin/Project/tls/nginx
+    type: DirectoryOrCreate
+  html:
+    hostPath: /Users/cosmin/Project/tls/html
+    type: DirectoryOrCreate
+
+secrets:
+  certificates: certificates
+
+#Service
+ports:
+  httpNodePort: 32035
+  httpsNodePort: 30548
+
+#Certificates
